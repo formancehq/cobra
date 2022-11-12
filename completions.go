@@ -203,7 +203,7 @@ func (c *Command) initCompleteCmd(args []string) {
 		Long: fmt.Sprintf("%[2]s is a special command that is used by the shell completion logic\n%[1]s",
 			"to request completion choices for the specified command-line.", ShellCompRequestCmd),
 		Run: func(cmd *Command, args []string) {
-			finalCmd, completions, directive, err := cmd.getCompletions(args)
+			finalCmd, completions, directive, err := cmd.GetCompletions(args)
 			if err != nil {
 				CompErrorln(err.Error())
 				// Keep going for multiple reasons:
@@ -263,7 +263,7 @@ func (c *Command) initCompleteCmd(args []string) {
 	}
 }
 
-func (c *Command) getCompletions(args []string) (*Command, []string, ShellCompDirective, error) {
+func (c *Command) GetCompletions(args []string) (*Command, []string, ShellCompDirective, error) {
 	// The last argument, which is not completely typed by the user,
 	// should not be part of the list of arguments
 	toComplete := args[len(args)-1]
