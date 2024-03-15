@@ -1,6 +1,7 @@
 ## Projects using Cobra
 
 - [Allero](https://github.com/allero-io/allero)
+- [Arewefastyet](https://benchmark.vitess.io)
 - [Arduino CLI](https://github.com/arduino/arduino-cli)
 - [Bleve](https://blevesearch.com/)
 - [Cilium](https://cilium.io/)
@@ -26,7 +27,7 @@
 - [Istio](https://istio.io)
 - [Kool](https://github.com/kool-dev/kool)
 - [Kubernetes](https://kubernetes.io/)
-- [Kubescape](https://github.com/armosec/kubescape)
+- [Kubescape](https://github.com/kubescape/kubescape)
 - [KubeVirt](https://github.com/kubevirt/kubevirt)
 - [Linkerd](https://linkerd.io/)
 - [Mattermost-server](https://github.com/mattermost/mattermost-server)
@@ -57,6 +58,7 @@
 - [Tendermint](https://github.com/tendermint/tendermint)
 - [Twitch CLI](https://github.com/twitchdev/twitch-cli)
 - [UpCloud CLI (`upctl`)](https://github.com/UpCloudLtd/upcloud-cli)
+- [Vitess](https://vitess.io)
 - VMware's [Tanzu Community Edition](https://github.com/vmware-tanzu/community-edition) & [Tanzu Framework](https://github.com/vmware-tanzu/tanzu-framework)
 - [Werf](https://werf.io/)
 - [ZITADEL](https://github.com/zitadel/zitadel)

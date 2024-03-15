@@ -162,16 +162,7 @@ cmd := &cobra.Command{
 }
 ```
 
-The aliases are not shown to the user on tab completion, but they are accepted as valid nouns by
-the completion algorithm if entered manually, e.g. in:
-
-```bash
-$ kubectl get rc [tab][tab]
-backend        frontend       database
-```
-
-Note that without declaring `rc` as an alias, the completion algorithm would not know to show the list of
-replication controllers following `rc`.
+The aliases are shown to the user on tab completion only if no completions were found within sub-commands or `ValidArgs`.
 
 ### Dynamic completion of nouns
 
@@ -237,6 +228,10 @@ ShellCompDirectiveFilterFileExt
 //    return []string{"themes"}, ShellCompDirectiveFilterDirs
 //
 ShellCompDirectiveFilterDirs
+
+// ShellCompDirectiveKeepOrder indicates that the shell should preserve the order
+// in which the completions are provided
+ShellCompDirectiveKeepOrder
 ```
 
 ***Note***: When using the `ValidArgsFunction`, Cobra will call your registered function after having parsed all flags and arguments provided in the command-line.  You therefore don't need to do this parsing yourself.  For example, when a user calls `helm status --namespace my-rook-ns [tab][tab]`, Cobra will call your registered `ValidArgsFunction` after having parsed the `--namespace` flag, as it would have done when calling the `RunE` function.
@@ -385,6 +380,19 @@ or
 ```go
 ValidArgs: []string{"bash\tCompletions for bash", "zsh\tCompletions for zsh"}
 ```
+
+If you don't want to show descriptions in the completions, you can add `--no-descriptions` to the default `completion` command to disable them, like:
+
+```bash
+$ source <(helm completion bash)
+$ helm completion [tab][tab]
+bash        (generate autocompletion script for bash)        powershell  (generate autocompletion script for powershell)
+fish        (generate autocompletion script for fish)        zsh         (generate autocompletion script for zsh)
+
+$ source <(helm completion bash --no-descriptions)
+$ helm completion [tab][tab]
+bash        fish        powershell  zsh
+```
 ## Bash completions
 
 ### Dependencies
@@ -408,7 +416,7 @@ completion     firstcommand   secondcommand
 ### Bash legacy dynamic completions
 
 For backward compatibility, Cobra still supports its bash legacy dynamic completion solution.
-Please refer to [Bash Completions](bash_completions.md) for details.
+Please refer to [Bash Completions](bash.md) for details.
 
 ### Bash completion V2
 
@@ -417,13 +425,13 @@ Cobra provides two versions for bash completion.  The original bash completion (
 
 A new V2 bash completion version is also available.  This version can be used by calling `GenBashCompletionV2()` or
 `GenBashCompletionFileV2()`.  The V2 version does **not** support the legacy dynamic completion
-(see [Bash Completions](bash_completions.md)) but instead works only with the Go dynamic completion
+(see [Bash Completions](bash.md)) but instead works only with the Go dynamic completion
 solution described in this document.
 Unless your program already uses the legacy dynamic completion solution, it is recommended that you use the bash
 completion V2 solution which provides the following extra features:
 - Supports completion descriptions (like the other shells)
 - Small completion script of less than 300 lines (v1 generates scripts of thousands of lines; `kubectl` for example has a bash v1 completion script of over 13K lines)
-- Streamlined user experience thanks to a completion behavior aligned with the other shells 
+- Streamlined user experience thanks to a completion behavior aligned with the other shells
 
 `Bash` completion V2 supports descriptions for completions. When calling `GenBashCompletionV2()` or `GenBashCompletionFileV2()`
 you must provide these functions with a parameter indicating if the completions should be annotated with a description; Cobra
@@ -440,7 +448,7 @@ show    (show information of a chart)
 $ helm s[tab][tab]
 search  show  status
 ```
-**Note**: Cobra's default `completion` command uses bash completion V2.  If for some reason you need to use bash completion V1, you will need to implement your own `completion` command. 
+**Note**: Cobra's default `completion` command uses bash completion V2.  If for some reason you need to use bash completion V1, you will need to implement your own `completion` command.
 ## Zsh completions
 
 Cobra supports native zsh completion generated from the root `cobra.Command`.
@@ -474,7 +482,7 @@ search  show  status
 ### Zsh completions standardization
 
 Cobra 1.1 standardized its zsh completion support to align it with its other shell completions.  Although the API was kept backward-compatible, some small changes in behavior were introduced.
-Please refer to [Zsh Completions](zsh_completions.md) for details.
+Please refer to [Zsh Completions](zsh.md) for details.
 
 ## fish completions
 
@@ -527,7 +535,7 @@ search  (search for a keyword in charts)  show  (show information of a chart)  s
 
 # With descriptions and Mode 'MenuComplete' The description of the current selected value will be displayed below the suggestions.
 $ helm s[tab]
-search    show     status  
+search    show     status
 
 search for a keyword in charts
 
