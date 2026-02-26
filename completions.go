@@ -353,6 +353,7 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
 	if !finalCmd.DisableFlagParsing {
 		finalCmd.InitDefaultHelpFlag()
 		finalCmd.InitDefaultVersionFlag()
+		finalCmd.initNoBoolFlags()
 	}
 
 	// Check if we are doing flag value completion before parsing the flags.
