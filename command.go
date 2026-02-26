@@ -254,6 +254,13 @@ type Command struct {
 	// that go along with 'unknown command' messages.
 	DisableSuggestions bool
 
+	// AddNegativeBoolFlags automatically creates --no-<flag> counterparts for
+	// boolean flags that default to true. For example, a --dry-run flag with a
+	// default of true will get a --no-dry-run flag that sets dry-run to false.
+	// The original flag and its --no- counterpart are mutually exclusive.
+	// This setting is inherited by subcommands.
+	AddNegativeBoolFlags bool
+
 	// SuggestionsMinimumDistance defines minimum levenshtein distance to display suggestions.
 	// Must be > 0.
 	SuggestionsMinimumDistance int
@@ -915,6 +922,7 @@ func (c *Command) execute(a []string) (err error) {
 	// overriding
 	c.InitDefaultHelpFlag()
 	c.InitDefaultVersionFlag()
+	c.initNoBoolFlags()
 
 	err = c.ParseFlags(a)
 	if err != nil {

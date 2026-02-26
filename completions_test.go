@@ -2784,6 +2784,82 @@ func TestMultipleShorthandFlagCompletion(t *testing.T) {
 	}
 }
 
+func TestBoolFlagWithCustomCompletion(t *testing.T) {
+	rootCmd := &Command{
+		Use:       "root",
+		ValidArgs: []string{"arg1", "arg2"},
+		Run:       emptyRun,
+	}
+	rootCmd.Flags().Bool("bool-with-comp", false, "bool flag with completion")
+	_ = rootCmd.RegisterFlagCompletionFunc("bool-with-comp", func(*Command, []string, string) ([]string, ShellCompDirective) {
+		return []string{"true", "false"}, ShellCompDirectiveNoFileComp | ShellCompDirectiveKeepOrder
+	})
+	rootCmd.Flags().Bool("bool-no-comp", false, "bool flag without completion")
+	rootCmd.Flags().String("string-flag", "", "string flag")
+
+	// Test that flag name completion suggests --bool-with-comp= (with equals)
+	output, err := executeCommand(rootCmd, ShellCompNoDescRequestCmd, "--bool-")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	expected := strings.Join([]string{
+		"--bool-no-comp",
+		"--bool-with-comp=",
+		":4",
+		"Completion ended with directive: ShellCompDirectiveNoFileComp", ""}, "\n")
+
+	if output != expected {
+		t.Errorf("expected: %q, got: %q", expected, output)
+	}
+
+	// Test that flag name completion suggests --bool-with-comp= with NoSpace when it's the only match
+	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "--bool-with")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	expected = strings.Join([]string{
+		"--bool-with-comp=",
+		":6",
+		"Completion ended with directive: ShellCompDirectiveNoSpace, ShellCompDirectiveNoFileComp", ""}, "\n")
+
+	if output != expected {
+		t.Errorf("expected: %q, got: %q", expected, output)
+	}
+
+	// Test that --bool-with-comp=<TAB> invokes the custom completion function
+	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "--bool-with-comp=")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	expected = strings.Join([]string{
+		"true",
+		"false",
+		":36",
+		"Completion ended with directive: ShellCompDirectiveNoFileComp, ShellCompDirectiveKeepOrder", ""}, "\n")
+
+	if output != expected {
+		t.Errorf("expected: %q, got: %q", expected, output)
+	}
+
+	// Test that bool flag without custom completion is NOT suggested with =
+	output, err = executeCommand(rootCmd, ShellCompNoDescRequestCmd, "--bool-no")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	expected = strings.Join([]string{
+		"--bool-no-comp",
+		":4",
+		"Completion ended with directive: ShellCompDirectiveNoFileComp", ""}, "\n")
+
+	if output != expected {
+		t.Errorf("expected: %q, got: %q", expected, output)
+	}
+}
+
 func TestCompleteWithDisableFlagParsing(t *testing.T) {
 
 	flagValidArgs := func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
