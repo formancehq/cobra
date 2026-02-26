@@ -473,10 +473,13 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
 		}
 
 		directive = ShellCompDirectiveNoFileComp
-		if len(completions) == 1 && strings.HasSuffix(completions[0], "=") {
+		if len(completions) == 1 {
 			// If there is a single completion, the shell usually adds a space
 			// after the completion.  We don't want that if the flag ends with an =
-			directive = ShellCompDirectiveNoSpace
+			comp := strings.SplitN(completions[0], "\t", 2)[0]
+			if strings.HasSuffix(comp, "=") {
+				directive |= ShellCompDirectiveNoSpace
+			}
 		}
 
 		if !finalCmd.DisableFlagParsing {
@@ -602,7 +605,20 @@ func getFlagNameCompletions(flag *pflag.Flag, toComplete string) []Completion {
 	var completions []Completion
 	flagName := "--" + flag.Name
 	if strings.HasPrefix(flagName, toComplete) {
-		// Flag without the =
+		// Boolean flags and other flags with NoOptDefVal normally don't accept
+		// a value using a space separator (e.g., --bool value). The only way to
+		// explicitly pass a value is with the = form (e.g., --bool=value).
+		// If a custom completion function is registered for such a flag,
+		// we suggest the = form so the user can reach the value completion.
+		if len(flag.NoOptDefVal) != 0 {
+			flagCompletionMutex.RLock()
+			_, hasCustomComp := flagCompletionFunctions[flag]
+			flagCompletionMutex.RUnlock()
+			if hasCustomComp {
+				flagName += "="
+			}
+		}
+
 		completions = append(completions, CompletionWithDesc(flagName, flag.Usage))
 
 		// Why suggest both long forms: --flag and --flag= ?
